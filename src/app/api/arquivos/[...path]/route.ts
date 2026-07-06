@@ -5,6 +5,8 @@ import path from "path";
 import { authOptions } from "@/lib/auth";
 import { PASTA_UPLOADS } from "@/lib/uploads";
 
+export const dynamic = "force-dynamic";
+
 const TIPOS_MIME: Record<string, string> = {
   ".png": "image/png",
   ".jpg": "image/jpeg",

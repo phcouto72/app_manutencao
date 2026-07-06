@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { enviarEmail } from "@/lib/email";
 
+export const dynamic = "force-dynamic";
+
 // Este endpoint não usa login de usuário — ele é chamado por um cron externo
 // (ex: cron-job.org, ou o recurso de Cron do EasyPanel), por isso é protegido
 // por um segredo compartilhado (CRON_SECRET), e não por sessão.

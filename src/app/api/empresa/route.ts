@@ -5,6 +5,8 @@ import { podeGerenciarUsuarios } from "@/lib/authz";
 import { getEmpresaConfig } from "@/lib/empresa";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const config = await getEmpresaConfig();
   return NextResponse.json(config);

@@ -13,5 +13,7 @@ export const config = {
     "/compras/:path*",
     "/agendamentos/:path*",
     "/planos-preventivos/:path*",
+    "/relatorios/:path*",
+    "/relatorios-imprimir/:path*",
   ],
 };

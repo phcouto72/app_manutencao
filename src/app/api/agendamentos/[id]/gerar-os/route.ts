@@ -13,11 +13,12 @@ export async function POST(_req: NextRequest, { params }: { params: { id: string
   if (!podeGerenciarManutencoes(papel)) {
     return NextResponse.json({ erro: "Sem permissão" }, { status: 403 });
   }
+
   const agendamento = await prisma.agendamento.findUnique({
     where: { id: params.id },
     include: { planoPreventivo: true, manutencaoGerada: true },
   });
-  
+
   if (!agendamento) return NextResponse.json({ erro: "Agendamento não encontrado" }, { status: 404 });
   if (agendamento.manutencaoGerada) {
     return NextResponse.json({ erro: "Este agendamento já gerou uma OS" }, { status: 400 });

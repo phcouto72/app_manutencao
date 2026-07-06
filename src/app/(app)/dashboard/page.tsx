@@ -50,12 +50,14 @@ export default async function DashboardPage() {
 
       <div className="card p-6">
         <h2 className="font-display text-xl font-semibold tracking-wide mb-2">
-          Próximos passos do projeto
+          Sistema completo
         </h2>
         <p className="text-base-400 text-sm leading-relaxed">
-          Fase 4 concluída: planos de manutenção preventiva recorrentes, agendamentos com aviso
-          por e-mail, e geração de OS a partir de um agendamento. A próxima fase vai habilitar:
-          relatórios com exportação/impressão em PDF.
+          Fase 5 concluída: relatórios com filtros, indicadores (MTTR, custos, ranking de
+          equipamentos) e exportação/impressão em PDF. Isso fecha o escopo inicial completo:
+          equipamentos, manutenções, estoque, fornecedores, compras, agendamento com aviso por
+          e-mail e relatórios. A partir daqui, qualquer ajuste é refinamento — me diga o que
+          quiser melhorar ou adicionar.
         </p>
       </div>
     </div>

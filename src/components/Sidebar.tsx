@@ -16,8 +16,11 @@ const itens = [
   { href: "/relatorios", label: "Relatórios", codigo: "09" },
 ];
 
+const itemUsuarios = { href: "/usuarios", label: "Usuários", codigo: "10" };
+
 export default function Sidebar({ nomeUsuario, papel }: { nomeUsuario: string; papel: string }) {
   const pathname = usePathname();
+  const listaItens = papel === "ADMIN" ? [...itens, itemUsuarios] : itens;
 
   return (
     <aside className="w-60 shrink-0 bg-base-900 border-r border-base-700 flex flex-col min-h-screen">
@@ -29,7 +32,7 @@ export default function Sidebar({ nomeUsuario, papel }: { nomeUsuario: string; p
       </div>
 
       <nav className="flex-1 py-4">
-        {itens.map((item) => {
+        {listaItens.map((item) => {
           const ativo = pathname?.startsWith(item.href);
           return (
             <Link
@@ -51,6 +54,9 @@ export default function Sidebar({ nomeUsuario, papel }: { nomeUsuario: string; p
       <div className="px-5 py-4 border-t border-base-700">
         <p className="text-sm text-base-100 truncate">{nomeUsuario}</p>
         <p className="text-xs text-base-400 mb-3 uppercase tracking-wide">{papel}</p>
+        <Link href="/perfil" className="text-xs text-base-400 hover:text-signal transition-colors block mb-2">
+          Meu perfil / trocar senha
+        </Link>
         <button
           onClick={() => signOut({ callbackUrl: "/login" })}
           className="text-xs text-base-400 hover:text-danger transition-colors"

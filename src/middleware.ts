@@ -15,5 +15,7 @@ export const config = {
     "/planos-preventivos/:path*",
     "/relatorios/:path*",
     "/relatorios-imprimir/:path*",
+    "/usuarios/:path*",
+    "/perfil/:path*",
   ],
 };

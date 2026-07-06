@@ -48,14 +48,13 @@ export default function AppShell({
               <path d="M4 6h16M4 12h16M4 18h16" strokeLinecap="round" />
             </svg>
           </button>
-          {logoUrl ? (
+          {logoUrl && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={logoUrl} alt={nomeEmpresa} className="h-6 max-w-[120px] object-contain" />
-          ) : (
-            <span className="font-display text-base font-semibold tracking-wide truncate">
-              {nomeEmpresa}
-            </span>
+            <img src={logoUrl} alt={nomeEmpresa} className="h-6 max-w-[80px] object-contain" />
           )}
+          <span className="font-display text-base font-semibold tracking-wide truncate">
+            CONTROLE DE MANUTENÇÃO
+          </span>
         </div>
 
         <div className="faixa-sinalizacao hidden md:block" />

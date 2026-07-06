@@ -58,9 +58,13 @@ export default async function RelatorioImprimirPage({
           <p className="text-sm text-gray-600 mt-1 font-semibold">{empresa.nome}</p>
           {empresa.endereco && <p className="text-xs text-gray-500">{empresa.endereco}</p>}
         </div>
-        {empresa.logoUrl && (
+        {(empresa.logoImpressaoUrl || empresa.logoUrl) && (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={empresa.logoUrl} alt={empresa.nome} className="h-16 max-w-[180px] object-contain" />
+          <img
+            src={empresa.logoImpressaoUrl || empresa.logoUrl || ""}
+            alt={empresa.nome}
+            className="h-16 max-w-[180px] object-contain"
+          />
         )}
       </div>
 

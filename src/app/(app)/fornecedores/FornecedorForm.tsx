@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { mascararTelefone, mascararCpfOuCnpj } from "@/lib/mascaras";
 
 type FornecedorDados = {
   id?: string;
@@ -78,7 +79,8 @@ export default function FornecedorForm({ fornecedor }: { fornecedor?: Fornecedor
           <input
             className="input-field"
             value={dados.cnpjCpf ?? ""}
-            onChange={(e) => atualizar("cnpjCpf", e.target.value)}
+            onChange={(e) => atualizar("cnpjCpf", mascararCpfOuCnpj(e.target.value))}
+            placeholder="000.000.000-00 ou 00.000.000/0000-00"
           />
         </div>
 
@@ -96,7 +98,8 @@ export default function FornecedorForm({ fornecedor }: { fornecedor?: Fornecedor
           <input
             className="input-field"
             value={dados.telefone ?? ""}
-            onChange={(e) => atualizar("telefone", e.target.value)}
+            onChange={(e) => atualizar("telefone", mascararTelefone(e.target.value))}
+            placeholder="(00) 00000-0000"
           />
         </div>
 

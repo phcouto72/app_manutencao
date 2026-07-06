@@ -18,6 +18,7 @@ export async function POST(req: NextRequest) {
 
   const formData = await req.formData();
   const arquivo = formData.get("logo") as File | null;
+  const tipo = (formData.get("tipo") as string) === "impressao" ? "impressao" : "tela";
 
   if (!arquivo) return NextResponse.json({ erro: "Nenhum arquivo enviado" }, { status: 400 });
   if (arquivo.size > TAMANHO_MAXIMO) {
@@ -28,11 +29,12 @@ export async function POST(req: NextRequest) {
   }
 
   const { caminhoRelativo } = await salvarArquivoEnviado(arquivo, "empresa");
+  const campo = tipo === "impressao" ? "logoImpressaoUrl" : "logoUrl";
 
   const config = await prisma.empresaConfig.upsert({
     where: { id: "empresa-config" },
-    update: { logoUrl: `/api/arquivos/${caminhoRelativo}` },
-    create: { id: "empresa-config", logoUrl: `/api/arquivos/${caminhoRelativo}` },
+    update: { [campo]: `/api/arquivos/${caminhoRelativo}` },
+    create: { id: "empresa-config", [campo]: `/api/arquivos/${caminhoRelativo}` },
   });
 
   return NextResponse.json(config);

@@ -352,14 +352,15 @@ model ItemPedidoCompra {
 // ----------------------------------------------------------
 
 model EmpresaConfig {
-  id           String   @id @default("empresa-config")
-  nome         String   @default("Minha Empresa")
-  logoUrl      String?
-  cnpj         String?
-  endereco     String?
-  telefone     String?
-  email        String?
-  atualizadoEm DateTime @updatedAt
+  id               String   @id @default("empresa-config")
+  nome             String   @default("Minha Empresa")
+  logoUrl          String?
+  logoImpressaoUrl String?
+  cnpj             String?
+  endereco         String?
+  telefone         String?
+  email            String?
+  atualizadoEm     DateTime @updatedAt
 }
 
 // ----------------------------------------------------------

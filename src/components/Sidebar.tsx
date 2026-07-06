@@ -48,15 +48,15 @@ export default function Sidebar({
     >
       <div className="px-5 py-6 border-b border-base-700 flex items-start justify-between">
         <div className="min-w-0">
-          {logoUrl ? (
+          {logoUrl && (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={logoUrl} alt={nomeEmpresa} className="h-10 max-w-[160px] object-contain mb-2" />
-          ) : (
-            <p className="font-mono text-signal text-[10px] tracking-widest">SISTEMA</p>
           )}
-          <h2 className="font-display text-lg font-semibold tracking-wide leading-tight truncate">
-            {nomeEmpresa}
+          <p className="font-mono text-signal text-[10px] tracking-widest">SISTEMA</p>
+          <h2 className="font-display text-lg font-semibold tracking-wide leading-tight">
+            CONTROLE DE MANUTENÇÃO
           </h2>
+          <p className="text-xs text-base-500 truncate mt-0.5">{nomeEmpresa}</p>
         </div>
         <button
           onClick={onFechar}

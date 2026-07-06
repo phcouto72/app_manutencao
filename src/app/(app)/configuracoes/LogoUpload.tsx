@@ -3,7 +3,13 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function LogoUpload({ logoAtual }: { logoAtual: string | null }) {
+export default function LogoUpload({
+  logoAtual,
+  tipo,
+}: {
+  logoAtual: string | null;
+  tipo: "tela" | "impressao";
+}) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(logoAtual);
@@ -19,6 +25,7 @@ export default function LogoUpload({ logoAtual }: { logoAtual: string | null }) 
 
     const formData = new FormData();
     formData.append("logo", arquivo);
+    formData.append("tipo", tipo);
 
     setEnviando(true);
     const resposta = await fetch("/api/empresa/logo", { method: "POST", body: formData });
@@ -37,7 +44,7 @@ export default function LogoUpload({ logoAtual }: { logoAtual: string | null }) 
       <div className="w-40 h-40 border border-base-700 rounded-lg flex items-center justify-center bg-base-800 mb-4 overflow-hidden">
         {preview ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={preview} alt="Logo da empresa" className="max-w-full max-h-full object-contain" />
+          <img src={preview} alt="Logo" className="max-w-full max-h-full object-contain" />
         ) : (
           <span className="text-base-500 text-xs text-center px-2">Nenhum logo ainda</span>
         )}
@@ -51,9 +58,6 @@ export default function LogoUpload({ logoAtual }: { logoAtual: string | null }) 
       />
       {enviando && <p className="text-xs text-base-400 mt-1">Enviando...</p>}
       {erro && <p className="text-sm text-danger mt-1">{erro}</p>}
-      <p className="text-xs text-base-400 mt-2">
-        Recomendado: imagem quadrada ou horizontal, fundo transparente, até 3 MB.
-      </p>
     </div>
   );
 }

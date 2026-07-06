@@ -23,9 +23,13 @@ export default async function EtiquetaEquipamentoPage({ params }: { params: { id
       </div>
 
       <div className="border-2 border-gray-900 rounded-lg p-6 print:border-black">
-        {empresa.logoUrl && (
+        {(empresa.logoImpressaoUrl || empresa.logoUrl) && (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={empresa.logoUrl} alt={empresa.nome} className="h-10 max-w-[160px] object-contain mx-auto mb-3" />
+          <img
+            src={empresa.logoImpressaoUrl || empresa.logoUrl || ""}
+            alt={empresa.nome}
+            className="h-10 max-w-[160px] object-contain mx-auto mb-3"
+          />
         )}
         <p className="text-xs uppercase tracking-widest text-gray-500 mb-1">Equipamento</p>
         <h1 className="text-lg font-bold mb-4">{equipamento.nome}</h1>

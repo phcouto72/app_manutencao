@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { mascararTelefone, mascararCNPJ } from "@/lib/mascaras";
 
 type EmpresaDados = {
   nome: string;
@@ -61,7 +62,8 @@ export default function EmpresaForm({ config }: { config: EmpresaDados }) {
         <input
           className="input-field"
           value={dados.cnpj ?? ""}
-          onChange={(e) => atualizar("cnpj", e.target.value)}
+          onChange={(e) => atualizar("cnpj", mascararCNPJ(e.target.value))}
+          placeholder="00.000.000/0000-00"
         />
       </div>
       <div>
@@ -78,7 +80,8 @@ export default function EmpresaForm({ config }: { config: EmpresaDados }) {
           <input
             className="input-field"
             value={dados.telefone ?? ""}
-            onChange={(e) => atualizar("telefone", e.target.value)}
+            onChange={(e) => atualizar("telefone", mascararTelefone(e.target.value))}
+            placeholder="(00) 00000-0000"
           />
         </div>
         <div>

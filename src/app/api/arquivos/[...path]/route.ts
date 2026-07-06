@@ -15,8 +15,12 @@ const TIPOS_MIME: Record<string, string> = {
 };
 
 export async function GET(_req: NextRequest, { params }: { params: { path: string[] } }) {
-  const session = await getServerSession(authOptions);
-  if (!session) return NextResponse.json({ erro: "Não autenticado" }, { status: 401 });
+  const ehArquivoPublicoDaEmpresa = params.path[0] === "empresa";
+
+  if (!ehArquivoPublicoDaEmpresa) {
+    const session = await getServerSession(authOptions);
+    if (!session) return NextResponse.json({ erro: "Não autenticado" }, { status: 401 });
+  }
 
   // Impede tentativas de escapar da pasta de uploads (ex: ../../etc/passwd)
   const partesSeguras = params.path.map((p) => path.basename(p));

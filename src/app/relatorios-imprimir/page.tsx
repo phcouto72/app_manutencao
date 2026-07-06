@@ -1,4 +1,5 @@
 import { buscarDadosRelatorio, FiltrosRelatorio } from "@/lib/relatorios";
+import { getEmpresaConfig } from "@/lib/empresa";
 import BotaoImprimir from "./BotaoImprimir";
 
 export const dynamic = "force-dynamic";
@@ -27,6 +28,7 @@ export default async function RelatorioImprimirPage({
   searchParams: FiltrosRelatorio;
 }) {
   const dados = await buscarDadosRelatorio(searchParams);
+  const empresa = await getEmpresaConfig();
   const geradoEm = new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short" }).format(
     new Date()
   );
@@ -47,11 +49,19 @@ export default async function RelatorioImprimirPage({
         <BotaoImprimir />
       </div>
 
-      <div className="border-b-4 border-gray-900 pb-4 mb-6">
-        <h1 className="text-2xl font-bold">Relatório de Manutenções</h1>
-        <p className="text-sm text-gray-600 mt-1">
-          Período: {periodo} · Gerado em {geradoEm}
-        </p>
+      <div className="border-b-4 border-gray-900 pb-4 mb-6 flex items-center justify-between gap-6">
+        <div>
+          <h1 className="text-2xl font-bold">Relatório de Manutenções</h1>
+          <p className="text-sm text-gray-600 mt-1">
+            Período: {periodo} · Gerado em {geradoEm}
+          </p>
+          <p className="text-sm text-gray-600 mt-1 font-semibold">{empresa.nome}</p>
+          {empresa.endereco && <p className="text-xs text-gray-500">{empresa.endereco}</p>}
+        </div>
+        {empresa.logoUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={empresa.logoUrl} alt={empresa.nome} className="h-16 max-w-[180px] object-contain" />
+        )}
       </div>
 
       <div className="grid grid-cols-4 gap-4 mb-6 text-center">

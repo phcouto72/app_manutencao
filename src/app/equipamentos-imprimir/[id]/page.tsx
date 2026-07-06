@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { getEmpresaConfig } from "@/lib/empresa";
 import BotaoImprimirEtiqueta from "./BotaoImprimirEtiqueta";
 
 export const dynamic = "force-dynamic";
@@ -8,6 +9,7 @@ export default async function EtiquetaEquipamentoPage({ params }: { params: { id
   const equipamento = await prisma.equipamento.findUnique({ where: { id: params.id } });
   if (!equipamento) notFound();
 
+  const empresa = await getEmpresaConfig();
   const baseUrl = process.env.NEXTAUTH_URL || "";
   const urlEquipamento = `${baseUrl}/equipamentos/${equipamento.id}`;
   const qrCodeSrc = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(
@@ -21,6 +23,10 @@ export default async function EtiquetaEquipamentoPage({ params }: { params: { id
       </div>
 
       <div className="border-2 border-gray-900 rounded-lg p-6 print:border-black">
+        {empresa.logoUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={empresa.logoUrl} alt={empresa.nome} className="h-10 max-w-[160px] object-contain mx-auto mb-3" />
+        )}
         <p className="text-xs uppercase tracking-widest text-gray-500 mb-1">Equipamento</p>
         <h1 className="text-lg font-bold mb-4">{equipamento.nome}</h1>
 

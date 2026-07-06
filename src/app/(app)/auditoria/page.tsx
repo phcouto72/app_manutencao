@@ -24,7 +24,8 @@ export default async function AuditoriaPage() {
       <p className="text-base-400 text-sm mb-8">Últimas 200 ações registradas no sistema.</p>
 
       <div className="card overflow-hidden">
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-base-700 text-left text-base-400 uppercase text-xs tracking-wide">
               <th className="px-4 py-3 font-medium">Data/hora</th>
@@ -50,6 +51,7 @@ export default async function AuditoriaPage() {
             ))}
           </tbody>
         </table>
+          </div>
         {logs.length === 0 && (
           <p className="text-base-400 text-sm p-6 text-center">Nenhum registro ainda.</p>
         )}

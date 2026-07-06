@@ -188,7 +188,8 @@ export default async function RelatoriosPage({
       )}
 
       <div className="card overflow-hidden">
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-base-700 text-left text-base-400 uppercase text-xs tracking-wide">
               <th className="px-4 py-3 font-medium">OS</th>
@@ -224,6 +225,7 @@ export default async function RelatoriosPage({
             ))}
           </tbody>
         </table>
+          </div>
       </div>
     </div>
   );

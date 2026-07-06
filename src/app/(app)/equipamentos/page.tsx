@@ -49,6 +49,7 @@ export default async function EquipamentosPage() {
         </div>
       ) : (
         <div className="card overflow-hidden">
+          <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-base-700 text-left text-base-400 uppercase text-xs tracking-wide">
@@ -93,6 +94,7 @@ export default async function EquipamentosPage() {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
     </div>

@@ -41,7 +41,8 @@ export default async function DetalhePedidoCompraPage({ params }: { params: { id
       )}
 
       <div className="card overflow-hidden mb-6">
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-base-700 text-left text-base-400 uppercase text-xs tracking-wide">
               <th className="px-4 py-3 font-medium">Peça</th>
@@ -73,6 +74,7 @@ export default async function DetalhePedidoCompraPage({ params }: { params: { id
             ))}
           </tbody>
         </table>
+          </div>
         <div className="p-4 flex justify-end border-t border-base-700">
           <span className="font-display text-xl font-semibold">
             Total:{" "}

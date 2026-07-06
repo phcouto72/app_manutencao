@@ -19,5 +19,6 @@ export const config = {
     "/perfil/:path*",
     "/auditoria/:path*",
     "/equipamentos-imprimir/:path*",
+    "/configuracoes/:path*",
   ],
 };

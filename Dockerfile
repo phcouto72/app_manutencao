@@ -1,6 +1,9 @@
-FROM node:20-alpine
+FROM node:20-slim
 
 WORKDIR /app
+
+# O Prisma precisa do OpenSSL disponível no sistema para funcionar corretamente.
+RUN apt-get update -y && apt-get install -y openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 
 COPY package.json package-lock.json* ./
 RUN npm install
@@ -12,6 +15,4 @@ RUN npm run build
 
 EXPOSE 3000
 
-# Aplica as migrações do banco de dados e só então inicia o servidor.
-# Assim, toda vez que o container sobe, o banco fica sempre atualizado.
 CMD ["sh", "-c", "npx prisma migrate deploy && npm run start"]

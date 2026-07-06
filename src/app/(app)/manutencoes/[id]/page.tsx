@@ -7,6 +7,7 @@ import AtualizarManutencaoForm from "./AtualizarManutencaoForm";
 import UsoPecasForm from "./UsoPecasForm";
 import ChecklistOS from "./ChecklistOS";
 import AnexosOS from "./AnexosOS";
+import ExcluirManutencaoBotao from "./ExcluirManutencaoBotao";
 
 export const dynamic = "force-dynamic";
 
@@ -68,10 +69,13 @@ export default async function DetalheManutencaoPage({ params }: { params: { id: 
         OS #{String(manutencao.numeroOS).padStart(4, "0")} · {tipoTexto[manutencao.tipo]}
       </p>
       <h1 className="font-display text-3xl font-semibold tracking-wide mb-2">{manutencao.titulo}</h1>
-      <p className="text-base-400 text-sm mb-8">
-        {manutencao.equipamento?.nome ?? manutencao.local?.nome} · Aberta em{" "}
-        {new Intl.DateTimeFormat("pt-BR").format(new Date(manutencao.dataAbertura))}
-      </p>
+      <div className="flex items-center justify-between mb-8">
+        <p className="text-base-400 text-sm">
+          {manutencao.equipamento?.nome ?? manutencao.local?.nome} · Aberta em{" "}
+          {new Intl.DateTimeFormat("pt-BR").format(new Date(manutencao.dataAbertura))}
+        </p>
+        {podeGerenciar && <ExcluirManutencaoBotao id={manutencao.id} />}
+      </div>
 
       {manutencao.descricaoProblema && (
         <div className="card p-5 mb-6">

@@ -50,14 +50,17 @@ export default async function DashboardPage() {
 
       <div className="card p-6">
         <h2 className="font-display text-xl font-semibold tracking-wide mb-2">
-          Sistema completo
+          Sobre o sistema
         </h2>
         <p className="text-base-400 text-sm leading-relaxed">
-          Fase 5 concluída: relatórios com filtros, indicadores (MTTR, custos, ranking de
-          equipamentos) e exportação/impressão em PDF. Isso fecha o escopo inicial completo:
-          equipamentos, manutenções, estoque, fornecedores, compras, agendamento com aviso por
-          e-mail e relatórios. A partir daqui, qualquer ajuste é refinamento — me diga o que
-          quiser melhorar ou adicionar.
+          Este sistema centraliza o controle de manutenção da empresa: cadastro de equipamentos
+          (com hierarquia entre eles), ordens de serviço para manutenções corretivas, preventivas
+          e prediais, estoque de peças com movimentações automáticas, fornecedores e pedidos de
+          compra, agendamento de preventivas com aviso por e-mail, checklists técnicos, anexos de
+          fotos e documentos por OS, e relatórios com indicadores (MTTR, MTBF, disponibilidade,
+          custos) prontos para impressão. O acesso é organizado por perfil de usuário
+          (Administrador, Gestor, Técnico e Visualizador), garantindo que cada pessoa veja e faça
+          apenas o que precisa.
         </p>
       </div>
     </div>

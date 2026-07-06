@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Sidebar from "./Sidebar";
+import RodapeSistema from "./RodapeSistema";
 
 export default function AppShell({
   nomeUsuario,
@@ -37,7 +38,8 @@ export default function AppShell({
         onFechar={() => setMenuAberto(false)}
       />
 
-      <div className="flex-1 min-h-screen">
+      <div className="flex-1 min-h-screen flex flex-col">
+        <div className="faixa-sinalizacao" />
         <div className="flex items-center gap-3 px-4 py-3 border-b border-base-700 md:hidden">
           <button
             onClick={() => setMenuAberto(true)}
@@ -57,8 +59,8 @@ export default function AppShell({
           </span>
         </div>
 
-        <div className="faixa-sinalizacao hidden md:block" />
-        <main className="p-4 md:p-8 max-w-6xl mx-auto">{children}</main>
+        <main className="p-4 md:p-8 max-w-6xl mx-auto w-full flex-1">{children}</main>
+        <RodapeSistema nomeEmpresa={nomeEmpresa} />
       </div>
     </div>
   );

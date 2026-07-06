@@ -78,3 +78,46 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
   return NextResponse.json(manutencao);
 }
+
+export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
+  const session = await getServerSession(authOptions);
+  if (!session) return NextResponse.json({ erro: "Não autenticado" }, { status: 401 });
+
+  const papel = (session.user as any)?.papel;
+  if (!podeGerenciarManutencoes(papel)) {
+    return NextResponse.json({ erro: "Sem permissão para excluir manutenções" }, { status: 403 });
+  }
+
+  const manutencao = await prisma.manutencao.findUnique({ where: { id: params.id } });
+  if (!manutencao) return NextResponse.json({ erro: "Não encontrada" }, { status: 404 });
+
+  await prisma.manutencao.delete({ where: { id: params.id } });
+
+  // Se o equipamento não tiver mais nenhuma outra OS em aberto, volta a ficar operante.
+  if (manutencao.equipamentoId) {
+    const outrasAbertas = await prisma.manutencao.count({
+      where: {
+        equipamentoId: manutencao.equipamentoId,
+        status: { in: ["ABERTA", "EM_ANDAMENTO", "AGUARDANDO_PECA"] },
+      },
+    });
+    if (outrasAbertas === 0) {
+      await prisma.equipamento.update({
+        where: { id: manutencao.equipamentoId },
+        data: { status: "OPERANTE" },
+      });
+    }
+  }
+
+  await prisma.logAuditoria.create({
+    data: {
+      usuarioId: (session.user as any).id,
+      acao: "EXCLUIR_MANUTENCAO",
+      entidade: "Manutencao",
+      entidadeId: params.id,
+      detalhes: `OS "${manutencao.titulo}" excluída`,
+    },
+  });
+
+  return NextResponse.json({ ok: true });
+}

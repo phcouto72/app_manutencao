@@ -1,5 +1,6 @@
 import LoginForm from "./LoginForm";
 import { getEmpresaConfig } from "@/lib/empresa";
+import RodapeSistema from "@/components/RodapeSistema";
 
 export const dynamic = "force-dynamic";
 
@@ -34,6 +35,7 @@ export default async function LoginPage() {
           </div>
         </div>
       </div>
+      <RodapeSistema nomeEmpresa={empresa.nome} />
     </div>
   );
 }

@@ -7,11 +7,12 @@ import { signOut } from "next-auth/react";
 const itens = [
   { href: "/dashboard", label: "Painel", codigo: "01" },
   { href: "/equipamentos", label: "Equipamentos", codigo: "02" },
+  { href: "/manutencoes", label: "Manutenções", codigo: "03" },
+  { href: "/locais", label: "Locais", codigo: "04" },
   // Os itens abaixo serão habilitados nas próximas fases do projeto.
-  // { href: "/manutencoes", label: "Manutenções", codigo: "03" },
-  // { href: "/estoque", label: "Estoque de Peças", codigo: "04" },
-  // { href: "/fornecedores", label: "Fornecedores", codigo: "05" },
-  // { href: "/relatorios", label: "Relatórios", codigo: "06" },
+  // { href: "/estoque", label: "Estoque de Peças", codigo: "05" },
+  // { href: "/fornecedores", label: "Fornecedores", codigo: "06" },
+  // { href: "/relatorios", label: "Relatórios", codigo: "07" },
 ];
 
 export default function Sidebar({ nomeUsuario, papel }: { nomeUsuario: string; papel: string }) {

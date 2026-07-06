@@ -3,19 +3,27 @@ import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
-  const [totalEquipamentos, equipamentosParados, equipamentosEmManutencao, totalUsuarios] =
-    await Promise.all([
-      prisma.equipamento.count(),
-      prisma.equipamento.count({ where: { status: "PARADO" } }),
-      prisma.equipamento.count({ where: { status: "EM_MANUTENCAO" } }),
-      prisma.usuario.count({ where: { ativo: true } }),
-    ]);
+  const [
+    totalEquipamentos,
+    equipamentosParados,
+    equipamentosEmManutencao,
+    totalUsuarios,
+    osAbertas,
+    osAguardandoPeca,
+  ] = await Promise.all([
+    prisma.equipamento.count(),
+    prisma.equipamento.count({ where: { status: "PARADO" } }),
+    prisma.equipamento.count({ where: { status: "EM_MANUTENCAO" } }),
+    prisma.usuario.count({ where: { ativo: true } }),
+    prisma.manutencao.count({ where: { status: { in: ["ABERTA", "EM_ANDAMENTO"] } } }),
+    prisma.manutencao.count({ where: { status: "AGUARDANDO_PECA" } }),
+  ]);
 
   const cartoes = [
     { label: "Equipamentos cadastrados", valor: totalEquipamentos, cor: "text-base-100" },
-    { label: "Em manutenção agora", valor: equipamentosEmManutencao, cor: "text-warn" },
-    { label: "Parados", valor: equipamentosParados, cor: "text-danger" },
-    { label: "Usuários ativos", valor: totalUsuarios, cor: "text-ok" },
+    { label: "OS abertas / em andamento", valor: osAbertas, cor: "text-info" },
+    { label: "OS aguardando peça", valor: osAguardandoPeca, cor: "text-signal" },
+    { label: "Equipamentos parados", valor: equipamentosParados, cor: "text-danger" },
   ];
 
   return (
@@ -37,9 +45,10 @@ export default async function DashboardPage() {
           Próximos passos do projeto
         </h2>
         <p className="text-base-400 text-sm leading-relaxed">
-          Esta é a Fase 1: login, perfis de usuário e cadastro de equipamentos. As próximas fases
-          vão habilitar aqui no painel: ordens de serviço de manutenção, estoque de peças,
-          fornecedores, agendamento com avisos por e-mail e relatórios para impressão.
+          Fase 2 concluída: ordens de serviço de manutenção (equipamentos e predial), histórico
+          por equipamento/local e cadastro de locais. As próximas fases vão habilitar: estoque de
+          peças, fornecedores e compras, agendamento de preventivas com aviso por e-mail, e
+          relatórios para impressão.
         </p>
       </div>
     </div>

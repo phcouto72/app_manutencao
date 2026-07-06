@@ -15,4 +15,5 @@ RUN npm run build
 
 EXPOSE 3000
 
+# Cria/atualiza as tabelas no banco a partir do schema, e só então inicia o servidor.
 CMD ["sh", "-c", "npx prisma db push --accept-data-loss && npm run start"]

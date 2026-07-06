@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { podeGerenciarManutencoes } from "@/lib/authz";
 import AtualizarManutencaoForm from "./AtualizarManutencaoForm";
 import UsoPecasForm from "./UsoPecasForm";
+import ChecklistOS from "./ChecklistOS";
+import AnexosOS from "./AnexosOS";
 
 export const dynamic = "force-dynamic";
 
@@ -26,6 +28,8 @@ export default async function DetalheManutencaoPage({ params }: { params: { id: 
       local: true,
       responsavel: true,
       itensPeca: { include: { peca: true } },
+      checklistItens: true,
+      anexos: { orderBy: { criadoEm: "desc" } },
     },
   });
 
@@ -124,6 +128,49 @@ export default async function DetalheManutencaoPage({ params }: { params: { id: 
           manutencao.itensPeca.length === 0 && (
             <p className="text-base-400 text-sm">Nenhuma peça registrada ainda.</p>
           )
+        )}
+      </div>
+
+      <div className="card p-6 mb-8">
+        <h2 className="font-display text-xl font-semibold tracking-wide mb-4">
+          Checklist técnico
+        </h2>
+        {podeGerenciar ? (
+          <ChecklistOS manutencaoId={manutencao.id} itensIniciais={manutencao.checklistItens} />
+        ) : manutencao.checklistItens.length === 0 ? (
+          <p className="text-base-400 text-sm">Nenhum item registrado ainda.</p>
+        ) : (
+          <ul className="space-y-2">
+            {manutencao.checklistItens.map((item) => (
+              <li key={item.id} className="flex items-center gap-2 text-sm">
+                <input type="checkbox" checked={item.concluido} disabled className="w-4 h-4" />
+                <span className={item.concluido ? "line-through text-base-500" : ""}>
+                  {item.descricao}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <div className="card p-6 mb-8">
+        <h2 className="font-display text-xl font-semibold tracking-wide mb-4">
+          Anexos (fotos, notas fiscais, laudos)
+        </h2>
+        {podeGerenciar ? (
+          <AnexosOS manutencaoId={manutencao.id} anexosIniciais={manutencao.anexos} />
+        ) : manutencao.anexos.length === 0 ? (
+          <p className="text-base-400 text-sm">Nenhum anexo enviado ainda.</p>
+        ) : (
+          <ul className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {manutencao.anexos.map((anexo) => (
+              <li key={anexo.id}>
+                <a href={anexo.url} target="_blank" rel="noopener noreferrer" className="text-signal text-sm hover:underline">
+                  {anexo.nomeArquivo}
+                </a>
+              </li>
+            ))}
+          </ul>
         )}
       </div>
 

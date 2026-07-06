@@ -16,15 +16,18 @@ type EquipamentoDados = {
   status: string;
   criticidade: number;
   localId?: string | null;
+  equipamentoPaiId?: string | null;
   observacoes?: string | null;
 };
 
 export default function EquipamentoForm({
   locais,
   equipamento,
+  equipamentosParaHierarquia,
 }: {
   locais: Local[];
   equipamento?: EquipamentoDados;
+  equipamentosParaHierarquia: { id: string; nome: string }[];
 }) {
   const router = useRouter();
   const [dados, setDados] = useState<EquipamentoDados>(
@@ -38,6 +41,7 @@ export default function EquipamentoForm({
       status: "OPERANTE",
       criticidade: 2,
       localId: "",
+      equipamentoPaiId: "",
       observacoes: "",
     }
   );
@@ -176,6 +180,28 @@ export default function EquipamentoForm({
             <option value={2}>Média</option>
             <option value={3}>Alta</option>
           </select>
+        </div>
+
+        <div className="md:col-span-2">
+          <label className="label-field">Equipamento pai (opcional)</label>
+          <select
+            className="input-field"
+            value={dados.equipamentoPaiId ?? ""}
+            onChange={(e) => atualizar("equipamentoPaiId", e.target.value)}
+          >
+            <option value="">Nenhum — este é um equipamento independente</option>
+            {equipamentosParaHierarquia
+              .filter((eq) => eq.id !== equipamento?.id)
+              .map((eq) => (
+                <option key={eq.id} value={eq.id}>
+                  {eq.nome}
+                </option>
+              ))}
+          </select>
+          <p className="text-xs text-base-400 mt-1">
+            Use isso para representar um subconjunto/componente de outro equipamento (ex: motor
+            de uma máquina maior).
+          </p>
         </div>
 
         <div className="md:col-span-2">

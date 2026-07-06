@@ -10,14 +10,17 @@ export default async function NovoEquipamentoPage() {
   const papel = (session?.user as any)?.papel;
   if (!podeGerenciarEquipamentos(papel)) redirect("/equipamentos");
 
-  const locais = await prisma.local.findMany({ orderBy: { nome: "asc" } });
+  const [locais, equipamentosParaHierarquia] = await Promise.all([
+    prisma.local.findMany({ orderBy: { nome: "asc" } }),
+    prisma.equipamento.findMany({ orderBy: { nome: "asc" }, select: { id: true, nome: true } }),
+  ]);
 
   return (
     <div>
       <p className="font-mono text-signal text-xs tracking-widest mb-1">CADASTRO</p>
       <h1 className="font-display text-3xl font-semibold tracking-wide mb-8">Novo equipamento</h1>
       <div className="card p-6 max-w-3xl">
-        <EquipamentoForm locais={locais} />
+        <EquipamentoForm locais={locais} equipamentosParaHierarquia={equipamentosParaHierarquia} />
       </div>
     </div>
   );

@@ -73,6 +73,23 @@ export default async function RelatorioImprimirPage({
         </div>
       </div>
 
+      {(dados.mtbfDias !== null || dados.disponibilidadePercentual !== null) && (
+        <div className="grid grid-cols-2 gap-4 mb-6 text-center">
+          {dados.mtbfDias !== null && (
+            <div className="border border-gray-300 rounded p-3">
+              <p className="text-2xl font-bold">{dados.mtbfDias.toFixed(1)}</p>
+              <p className="text-xs text-gray-500 uppercase">MTBF (dias entre falhas)</p>
+            </div>
+          )}
+          {dados.disponibilidadePercentual !== null && (
+            <div className="border border-gray-300 rounded p-3">
+              <p className="text-2xl font-bold">{dados.disponibilidadePercentual.toFixed(1)}%</p>
+              <p className="text-xs text-gray-500 uppercase">Disponibilidade</p>
+            </div>
+          )}
+        </div>
+      )}
+
       <table className="w-full text-xs border-collapse">
         <thead>
           <tr className="border-b-2 border-gray-900 text-left">

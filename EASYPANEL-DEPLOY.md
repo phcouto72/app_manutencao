@@ -129,3 +129,18 @@ Ele **não roda sozinho** — precisa de algo que "bata" nesse endereço todo di
 Alguns planos/versões do EasyPanel têm um recurso de "Cron Jobs" na própria interface — se você
 tiver essa opção, aponte para o mesmo endereço acima, 1x por dia.
 
+## IMPORTANTE: volume persistente para os anexos enviados (fotos, notas fiscais, laudos)
+
+As fotos e documentos anexados nas OS ficam salvos dentro do container, na pasta `/app/uploads`.
+**Sem um volume persistente, esses arquivos somem toda vez que você faz um novo deploy**
+(o container é recriado do zero a cada build).
+
+No EasyPanel, no serviço da aplicação, procure a aba **Volumes** (ou "Mounts") e adicione:
+
+```
+Caminho no container: /app/uploads
+```
+
+O EasyPanel vai reservar um espaço em disco no próprio VPS que sobrevive aos deploys. Configure
+isso antes de começar a anexar arquivos de verdade em produção.
+

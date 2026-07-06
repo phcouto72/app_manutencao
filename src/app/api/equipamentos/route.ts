@@ -15,6 +15,7 @@ const equipamentoSchema = z.object({
   status: z.enum(["OPERANTE", "EM_MANUTENCAO", "PARADO", "INATIVO"]).default("OPERANTE"),
   criticidade: z.number().int().min(1).max(3).default(2),
   localId: z.string().optional().nullable(),
+  equipamentoPaiId: z.string().optional().nullable(),
   observacoes: z.string().optional().nullable(),
 });
 

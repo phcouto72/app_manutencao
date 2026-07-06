@@ -17,10 +17,11 @@ const itens = [
 ];
 
 const itemUsuarios = { href: "/usuarios", label: "Usuários", codigo: "10" };
+const itemAuditoria = { href: "/auditoria", label: "Auditoria", codigo: "11" };
 
 export default function Sidebar({ nomeUsuario, papel }: { nomeUsuario: string; papel: string }) {
   const pathname = usePathname();
-  const listaItens = papel === "ADMIN" ? [...itens, itemUsuarios] : itens;
+  const listaItens = papel === "ADMIN" ? [...itens, itemUsuarios, itemAuditoria] : itens;
 
   return (
     <aside className="w-60 shrink-0 bg-base-900 border-r border-base-700 flex flex-col min-h-screen">

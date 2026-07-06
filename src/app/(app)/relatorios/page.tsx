@@ -148,6 +148,29 @@ export default async function RelatoriosPage({
         </div>
       </div>
 
+      {(dados.mtbfDias !== null || dados.disponibilidadePercentual !== null) && (
+        <div className="grid grid-cols-2 gap-4 mb-6">
+          {dados.mtbfDias !== null && (
+            <div className="card p-5">
+              <p className="font-display text-4xl font-semibold">{dados.mtbfDias.toFixed(1)}</p>
+              <p className="text-base-400 text-xs mt-2 uppercase tracking-wide">
+                MTBF (dias entre falhas)
+              </p>
+            </div>
+          )}
+          {dados.disponibilidadePercentual !== null && (
+            <div className="card p-5">
+              <p className="font-display text-4xl font-semibold">
+                {dados.disponibilidadePercentual.toFixed(1)}%
+              </p>
+              <p className="text-base-400 text-xs mt-2 uppercase tracking-wide">
+                Disponibilidade no período
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
       {dados.rankingEquipamentos.length > 0 && (
         <div className="card p-5 mb-6">
           <h2 className="font-display text-lg font-semibold tracking-wide mb-3">

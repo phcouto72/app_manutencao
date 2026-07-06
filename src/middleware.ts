@@ -17,5 +17,7 @@ export const config = {
     "/relatorios-imprimir/:path*",
     "/usuarios/:path*",
     "/perfil/:path*",
+    "/auditoria/:path*",
+    "/equipamentos-imprimir/:path*",
   ],
 };

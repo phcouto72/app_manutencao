@@ -68,6 +68,56 @@ export async function buscarDadosRelatorio(filtros: FiltrosRelatorio) {
     .sort((a, b) => b.total - a.total)
     .slice(0, 5);
 
+  // MTBF e disponibilidade só fazem sentido olhando para um equipamento específico.
+  let mtbfDias: number | null = null;
+  let disponibilidadePercentual: number | null = null;
+
+  if (filtros.equipamentoId) {
+    const corretivas = manutencoes
+      .filter((m) => m.tipo === "CORRETIVA")
+      .sort((a, b) => new Date(a.dataAbertura).getTime() - new Date(b.dataAbertura).getTime());
+
+    if (corretivas.length >= 2) {
+      let somaDias = 0;
+      for (let i = 1; i < corretivas.length; i++) {
+        const dias =
+          (new Date(corretivas[i].dataAbertura).getTime() -
+            new Date(corretivas[i - 1].dataAbertura).getTime()) /
+          (1000 * 60 * 60 * 24);
+        somaDias += dias;
+      }
+      mtbfDias = somaDias / (corretivas.length - 1);
+    }
+
+    const equipamento = await prisma.equipamento.findUnique({
+      where: { id: filtros.equipamentoId },
+      select: { criadoEm: true },
+    });
+
+    if (equipamento) {
+      const inicioPeriodo = filtros.dataInicio
+        ? new Date(filtros.dataInicio)
+        : new Date(equipamento.criadoEm);
+      const fimPeriodo = filtros.dataFim ? new Date(filtros.dataFim) : new Date();
+      const totalHorasPeriodo = Math.max(
+        (fimPeriodo.getTime() - inicioPeriodo.getTime()) / 36e5,
+        1
+      );
+
+      const horasParadas = manutencoes.reduce((soma, m) => {
+        if (!m.dataConclusao) return soma;
+        const inicio = m.dataInicio ?? m.dataAbertura;
+        const horas = (new Date(m.dataConclusao).getTime() - new Date(inicio).getTime()) / 36e5;
+        return soma + Math.max(horas, 0);
+      }, 0);
+
+      disponibilidadePercentual = Math.max(
+        0,
+        Math.min(100, ((totalHorasPeriodo - horasParadas) / totalHorasPeriodo) * 100)
+      );
+    }
+  }
+
   return {
     manutencoes,
     totalOS,
@@ -76,5 +126,7 @@ export async function buscarDadosRelatorio(filtros: FiltrosRelatorio) {
     porTipo,
     porStatus,
     rankingEquipamentos,
+    mtbfDias,
+    disponibilidadePercentual,
   };
 }

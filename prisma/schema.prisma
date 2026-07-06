@@ -1,0 +1,363 @@
+// ==========================================================
+// MODELO DE DADOS - Sistema de Controle de Manutenção
+// Este schema já contempla TODAS as fases do projeto,
+// para evitar retrabalho no banco de dados nas próximas etapas.
+// ==========================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ----------------------------------------------------------
+// USUÁRIOS E PERMISSÕES
+// ----------------------------------------------------------
+
+enum Papel {
+  ADMIN // acesso total, gerencia usuários
+  GESTOR // gerencia manutenções, estoque, fornecedores, relatórios
+  TECNICO // executa e registra manutenções
+  VISUALIZADOR // apenas consulta / relatórios
+}
+
+model Usuario {
+  id            String    @id @default(cuid())
+  nome          String
+  email         String    @unique
+  senhaHash     String
+  papel         Papel     @default(TECNICO)
+  ativo         Boolean   @default(true)
+  criadoEm      DateTime  @default(now())
+  atualizadoEm  DateTime  @updatedAt
+
+  manutencoesResponsavel Manutencao[]     @relation("ResponsavelManutencao")
+  agendamentosCriados    Agendamento[]    @relation("CriadorAgendamento")
+  movimentosEstoque      MovimentoEstoque[]
+  pedidosCompra          PedidoCompra[]
+  logs                   LogAuditoria[]
+}
+
+// ----------------------------------------------------------
+// LOCAIS / ESTRUTURA PREDIAL
+// ----------------------------------------------------------
+
+model Local {
+  id           String   @id @default(cuid())
+  nome         String   // Ex: "Galpão 1", "Bloco Administrativo - 2º andar"
+  descricao    String?
+  criadoEm     DateTime @default(now())
+
+  equipamentos Equipamento[]
+  manutencoes  Manutencao[]
+}
+
+// ----------------------------------------------------------
+// EQUIPAMENTOS (com hierarquia: equipamento pai/filho)
+// ----------------------------------------------------------
+
+enum StatusEquipamento {
+  OPERANTE
+  EM_MANUTENCAO
+  PARADO
+  INATIVO
+}
+
+model Equipamento {
+  id               String            @id @default(cuid())
+  codigoPatrimonio String?           @unique // código interno / etiqueta / QR code
+  nome             String
+  categoria        String?           // Ex: "Motor", "Compressor", "Ar condicionado"
+  fabricante       String?
+  modelo           String?
+  numeroSerie      String?
+  dataAquisicao    DateTime?
+  fimGarantia      DateTime?
+  status           StatusEquipamento @default(OPERANTE)
+  criticidade      Int               @default(2) // 1 baixa, 2 média, 3 alta
+  observacoes      String?
+  fotoUrl          String?
+  manualUrl        String?
+
+  localId          String?
+  local            Local?            @relation(fields: [localId], references: [id])
+
+  equipamentoPaiId String?
+  equipamentoPai   Equipamento?      @relation("HierarquiaEquipamento", fields: [equipamentoPaiId], references: [id])
+  subEquipamentos  Equipamento[]     @relation("HierarquiaEquipamento")
+
+  criadoEm         DateTime          @default(now())
+  atualizadoEm     DateTime          @updatedAt
+
+  manutencoes      Manutencao[]
+  planosPreventivos PlanoPreventivo[]
+  agendamentos     Agendamento[]
+}
+
+// ----------------------------------------------------------
+// MANUTENÇÕES (Ordens de Serviço) - equipamento OU estrutura predial
+// ----------------------------------------------------------
+
+enum TipoManutencao {
+  PREVENTIVA
+  CORRETIVA
+  PREDITIVA
+}
+
+enum CategoriaServico {
+  MECANICA
+  ELETRICA
+  HIDRAULICA
+  CIVIL
+  ELETRONICA
+  OUTRO
+}
+
+enum StatusManutencao {
+  ABERTA
+  EM_ANDAMENTO
+  AGUARDANDO_PECA
+  CONCLUIDA
+  CANCELADA
+}
+
+model Manutencao {
+  id               String           @id @default(cuid())
+  numeroOS         Int              @default(autoincrement())
+  tipo             TipoManutencao
+  categoriaServico CategoriaServico @default(OUTRO)
+  status           StatusManutencao @default(ABERTA)
+  titulo           String
+  descricaoProblema String?
+  descricaoSolucao  String?
+
+  equipamentoId    String?
+  equipamento      Equipamento?     @relation(fields: [equipamentoId], references: [id])
+
+  localId          String?          // usado quando é manutenção predial (sem equipamento específico)
+  local            Local?           @relation(fields: [localId], references: [id])
+
+  responsavelId    String?
+  responsavel      Usuario?         @relation("ResponsavelManutencao", fields: [responsavelId], references: [id])
+
+  agendamentoId    String?          @unique
+  agendamento      Agendamento?     @relation(fields: [agendamentoId], references: [id])
+
+  dataAbertura     DateTime         @default(now())
+  dataInicio       DateTime?
+  dataConclusao    DateTime?
+
+  custoMaoDeObra   Decimal?         @default(0)
+  custoPecas       Decimal?         @default(0)
+
+  criadoEm         DateTime         @default(now())
+  atualizadoEm     DateTime         @updatedAt
+
+  itensPeca        ItemPecaManutencao[]
+  anexos           Anexo[]
+  checklistItens   ChecklistItem[]
+}
+
+model ChecklistItem {
+  id            String     @id @default(cuid())
+  manutencaoId  String
+  manutencao    Manutencao @relation(fields: [manutencaoId], references: [id], onDelete: Cascade)
+  descricao     String
+  concluido     Boolean    @default(false)
+}
+
+model Anexo {
+  id            String      @id @default(cuid())
+  manutencaoId  String
+  manutencao    Manutencao  @relation(fields: [manutencaoId], references: [id], onDelete: Cascade)
+  url           String
+  nomeArquivo   String
+  tipo          String?     // foto, nota_fiscal, laudo, etc
+  criadoEm      DateTime    @default(now())
+}
+
+// ----------------------------------------------------------
+// PLANO DE MANUTENÇÃO PREVENTIVA + AGENDAMENTO
+// ----------------------------------------------------------
+
+enum FrequenciaTipo {
+  DIAS
+  SEMANAS
+  MESES
+  HORAS_USO
+}
+
+model PlanoPreventivo {
+  id               String         @id @default(cuid())
+  equipamentoId    String
+  equipamento      Equipamento    @relation(fields: [equipamentoId], references: [id])
+  titulo           String
+  descricao        String?
+  frequenciaTipo   FrequenciaTipo @default(MESES)
+  frequenciaValor  Int            // ex: a cada 6 (meses)
+  ativo            Boolean        @default(true)
+  criadoEm         DateTime       @default(now())
+
+  agendamentos     Agendamento[]
+}
+
+enum StatusAgendamento {
+  PENDENTE
+  NOTIFICADO
+  CONCLUIDO
+  CANCELADO
+}
+
+model Agendamento {
+  id               String            @id @default(cuid())
+  planoPreventivoId String?
+  planoPreventivo  PlanoPreventivo?  @relation(fields: [planoPreventivoId], references: [id])
+
+  equipamentoId    String?
+  equipamento      Equipamento?      @relation(fields: [equipamentoId], references: [id])
+
+  titulo           String
+  dataPrevista      DateTime
+  status           StatusAgendamento @default(PENDENTE)
+  notificarPorEmail Boolean          @default(true)
+  diasAntecedenciaAviso Int          @default(3)
+
+  criadoPorId      String?
+  criadoPor        Usuario?          @relation("CriadorAgendamento", fields: [criadoPorId], references: [id])
+
+  criadoEm         DateTime          @default(now())
+
+  manutencaoGerada Manutencao?
+  notificacoes     Notificacao[]
+}
+
+model Notificacao {
+  id             String       @id @default(cuid())
+  agendamentoId  String
+  agendamento    Agendamento  @relation(fields: [agendamentoId], references: [id])
+  enviadaEm      DateTime     @default(now())
+  canal          String       // "email" | "app"
+  sucesso        Boolean      @default(true)
+}
+
+// ----------------------------------------------------------
+// ESTOQUE DE PEÇAS
+// ----------------------------------------------------------
+
+model Peca {
+  id             String     @id @default(cuid())
+  codigo         String?    @unique
+  nome           String
+  descricao      String?
+  unidadeMedida  String     @default("UN")
+  quantidadeMin  Int        @default(0) // ponto de pedido
+  quantidadeAtual Int       @default(0)
+  localizacaoEstoque String?
+  precoMedio     Decimal?   @default(0)
+
+  criadoEm       DateTime   @default(now())
+
+  itensManutencao ItemPecaManutencao[]
+  movimentos      MovimentoEstoque[]
+  itensPedido     ItemPedidoCompra[]
+}
+
+model ItemPecaManutencao {
+  id            String      @id @default(cuid())
+  manutencaoId  String
+  manutencao    Manutencao  @relation(fields: [manutencaoId], references: [id], onDelete: Cascade)
+  pecaId        String
+  peca          Peca        @relation(fields: [pecaId], references: [id])
+  quantidade    Int
+  precoUnitario Decimal?    @default(0)
+}
+
+enum TipoMovimentoEstoque {
+  ENTRADA
+  SAIDA
+  AJUSTE
+}
+
+model MovimentoEstoque {
+  id           String               @id @default(cuid())
+  pecaId       String
+  peca         Peca                 @relation(fields: [pecaId], references: [id])
+  tipo         TipoMovimentoEstoque
+  quantidade   Int
+  motivo       String?
+  usuarioId    String?
+  usuario      Usuario?             @relation(fields: [usuarioId], references: [id])
+  criadoEm     DateTime             @default(now())
+}
+
+// ----------------------------------------------------------
+// FORNECEDORES E COMPRAS
+// ----------------------------------------------------------
+
+model Fornecedor {
+  id            String   @id @default(cuid())
+  nome          String
+  cnpjCpf       String?
+  contatoNome   String?
+  telefone      String?
+  email         String?
+  endereco      String?
+  observacoes   String?
+  ativo         Boolean  @default(true)
+  criadoEm      DateTime @default(now())
+
+  pedidos       PedidoCompra[]
+}
+
+enum StatusPedidoCompra {
+  ORCAMENTO
+  APROVADO
+  ENVIADO
+  RECEBIDO
+  CANCELADO
+}
+
+model PedidoCompra {
+  id             String             @id @default(cuid())
+  numeroPedido   Int                @default(autoincrement())
+  fornecedorId   String
+  fornecedor     Fornecedor         @relation(fields: [fornecedorId], references: [id])
+  status         StatusPedidoCompra @default(ORCAMENTO)
+  dataPedido     DateTime           @default(now())
+  dataRecebimento DateTime?
+  valorTotal     Decimal?           @default(0)
+  observacoes    String?
+
+  criadoPorId    String?
+  criadoPor      Usuario?           @relation(fields: [criadoPorId], references: [id])
+
+  itens          ItemPedidoCompra[]
+}
+
+model ItemPedidoCompra {
+  id             String       @id @default(cuid())
+  pedidoId       String
+  pedido         PedidoCompra @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  pecaId         String
+  peca           Peca         @relation(fields: [pecaId], references: [id])
+  quantidade     Int
+  precoUnitario  Decimal      @default(0)
+}
+
+// ----------------------------------------------------------
+// AUDITORIA
+// ----------------------------------------------------------
+
+model LogAuditoria {
+  id          String   @id @default(cuid())
+  usuarioId   String?
+  usuario     Usuario? @relation(fields: [usuarioId], references: [id])
+  acao        String   // ex: "CRIAR_EQUIPAMENTO", "CONCLUIR_MANUTENCAO"
+  entidade    String   // ex: "Equipamento"
+  entidadeId  String?
+  detalhes    String?
+  criadoEm    DateTime @default(now())
+}

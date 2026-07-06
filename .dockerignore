@@ -1,0 +1,9 @@
+node_modules
+.next
+.env
+.env.local
+.git
+*.log
+DEPLOY.md
+EASYPANEL-DEPLOY.md
+README.md

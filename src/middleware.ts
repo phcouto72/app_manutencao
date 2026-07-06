@@ -11,5 +11,7 @@ export const config = {
     "/estoque/:path*",
     "/fornecedores/:path*",
     "/compras/:path*",
+    "/agendamentos/:path*",
+    "/planos-preventivos/:path*",
   ],
 };

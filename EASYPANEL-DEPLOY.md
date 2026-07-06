@@ -91,3 +91,41 @@ de configurações do serviço).
 
 O EasyPanel geralmente permite configurar backups automáticos do serviço de banco de dados
 direto na interface (aba do serviço PostgreSQL). Vale ativar isso assim que o banco for criado.
+
+## Configurando o envio de e-mails (Fase 4)
+
+Adicione estas variáveis de ambiente no serviço da aplicação, no EasyPanel (além das que já
+existiam):
+
+```
+SMTP_HOST=smtp.hostinger.com
+SMTP_PORT=587
+SMTP_USER=manutencao@seudominio.com.br
+SMTP_PASS=a_senha_desse_email
+SMTP_FROM=Manutencao <manutencao@seudominio.com.br>
+CRON_SECRET=(gere um valor aleatório, ex: openssl rand -base64 24)
+```
+
+Se você tem e-mail no seu domínio pela Hostinger, os dados de SMTP costumam estar no painel de
+e-mail da Hostinger (hPanel → E-mails → Configurar cliente de e-mail). Se preferir, também
+funciona com outros provedores SMTP (Gmail com senha de app, SendGrid, etc.).
+
+## Configurando o envio automático diário (Fase 4)
+
+O sistema tem um endereço que verifica os agendamentos e manda os e-mails quando chamado:
+
+```
+https://manutencao.seudominio.com.br/api/cron/verificar-agendamentos?secret=SEU_CRON_SECRET
+```
+
+Ele **não roda sozinho** — precisa de algo que "bata" nesse endereço todo dia. Duas opções:
+
+**Opção 1 — Serviço gratuito externo (mais simples):**
+1. Crie uma conta em https://cron-job.org (gratuito)
+2. Crie um novo cron job apontando para a URL acima (com o seu `CRON_SECRET` de verdade)
+3. Configure para rodar 1x por dia (ex: todo dia às 8h)
+
+**Opção 2 — Cron do próprio EasyPanel (se disponível na sua versão):**
+Alguns planos/versões do EasyPanel têm um recurso de "Cron Jobs" na própria interface — se você
+tiver essa opção, aponte para o mesmo endereço acima, 1x por dia.
+

@@ -11,6 +11,7 @@ export default async function DashboardPage() {
     osAbertas,
     osAguardandoPeca,
     pecas,
+    agendamentosVencidos,
   ] = await Promise.all([
     prisma.equipamento.count(),
     prisma.equipamento.count({ where: { status: "PARADO" } }),
@@ -19,6 +20,9 @@ export default async function DashboardPage() {
     prisma.manutencao.count({ where: { status: { in: ["ABERTA", "EM_ANDAMENTO"] } } }),
     prisma.manutencao.count({ where: { status: "AGUARDANDO_PECA" } }),
     prisma.peca.findMany({ select: { quantidadeAtual: true, quantidadeMin: true } }),
+    prisma.agendamento.count({
+      where: { status: { in: ["PENDENTE", "NOTIFICADO"] }, dataPrevista: { lt: new Date() } },
+    }),
   ]);
 
   const pecasEmFalta = pecas.filter((p) => p.quantidadeAtual <= p.quantidadeMin).length;
@@ -26,8 +30,8 @@ export default async function DashboardPage() {
   const cartoes = [
     { label: "Equipamentos cadastrados", valor: totalEquipamentos, cor: "text-base-100" },
     { label: "OS abertas / em andamento", valor: osAbertas, cor: "text-info" },
-    { label: "OS aguardando peça", valor: osAguardandoPeca, cor: "text-signal" },
-    { label: "Peças no ponto de pedido", valor: pecasEmFalta, cor: "text-danger" },
+    { label: "Agendamentos vencidos", valor: agendamentosVencidos, cor: "text-danger" },
+    { label: "Peças no ponto de pedido", valor: pecasEmFalta, cor: "text-signal" },
   ];
 
   return (
@@ -49,9 +53,9 @@ export default async function DashboardPage() {
           Próximos passos do projeto
         </h2>
         <p className="text-base-400 text-sm leading-relaxed">
-          Fase 3 concluída: estoque de peças, fornecedores e pedidos de compra (com baixa/entrada
-          automática no estoque). As próximas fases vão habilitar: agendamento de preventivas com
-          aviso por e-mail, e relatórios para impressão.
+          Fase 4 concluída: planos de manutenção preventiva recorrentes, agendamentos com aviso
+          por e-mail, e geração de OS a partir de um agendamento. A próxima fase vai habilitar:
+          relatórios com exportação/impressão em PDF.
         </p>
       </div>
     </div>

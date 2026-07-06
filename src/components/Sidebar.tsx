@@ -12,8 +12,8 @@ const itens = [
   { href: "/estoque", label: "Estoque de Peças", codigo: "05" },
   { href: "/fornecedores", label: "Fornecedores", codigo: "06" },
   { href: "/compras", label: "Pedidos de Compra", codigo: "07" },
+  { href: "/agendamentos", label: "Agendamentos", codigo: "08" },
   // Os itens abaixo serão habilitados nas próximas fases do projeto.
-  // { href: "/agendamentos", label: "Agendamentos", codigo: "08" },
   // { href: "/relatorios", label: "Relatórios", codigo: "09" },
 ];
 

@@ -29,6 +29,10 @@ export function podeGerenciarCompras(papel?: string | null) {
   return papel === "ADMIN" || papel === "GESTOR";
 }
 
+export function podeGerenciarAgendamentos(papel?: string | null) {
+  return papel === "ADMIN" || papel === "GESTOR";
+}
+
 export function podeGerenciarUsuarios(papel?: string | null) {
   return papel === "ADMIN";
 }

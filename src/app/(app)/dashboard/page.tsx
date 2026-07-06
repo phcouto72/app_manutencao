@@ -10,6 +10,7 @@ export default async function DashboardPage() {
     totalUsuarios,
     osAbertas,
     osAguardandoPeca,
+    pecas,
   ] = await Promise.all([
     prisma.equipamento.count(),
     prisma.equipamento.count({ where: { status: "PARADO" } }),
@@ -17,13 +18,16 @@ export default async function DashboardPage() {
     prisma.usuario.count({ where: { ativo: true } }),
     prisma.manutencao.count({ where: { status: { in: ["ABERTA", "EM_ANDAMENTO"] } } }),
     prisma.manutencao.count({ where: { status: "AGUARDANDO_PECA" } }),
+    prisma.peca.findMany({ select: { quantidadeAtual: true, quantidadeMin: true } }),
   ]);
+
+  const pecasEmFalta = pecas.filter((p) => p.quantidadeAtual <= p.quantidadeMin).length;
 
   const cartoes = [
     { label: "Equipamentos cadastrados", valor: totalEquipamentos, cor: "text-base-100" },
     { label: "OS abertas / em andamento", valor: osAbertas, cor: "text-info" },
     { label: "OS aguardando peça", valor: osAguardandoPeca, cor: "text-signal" },
-    { label: "Equipamentos parados", valor: equipamentosParados, cor: "text-danger" },
+    { label: "Peças no ponto de pedido", valor: pecasEmFalta, cor: "text-danger" },
   ];
 
   return (
@@ -45,10 +49,9 @@ export default async function DashboardPage() {
           Próximos passos do projeto
         </h2>
         <p className="text-base-400 text-sm leading-relaxed">
-          Fase 2 concluída: ordens de serviço de manutenção (equipamentos e predial), histórico
-          por equipamento/local e cadastro de locais. As próximas fases vão habilitar: estoque de
-          peças, fornecedores e compras, agendamento de preventivas com aviso por e-mail, e
-          relatórios para impressão.
+          Fase 3 concluída: estoque de peças, fornecedores e pedidos de compra (com baixa/entrada
+          automática no estoque). As próximas fases vão habilitar: agendamento de preventivas com
+          aviso por e-mail, e relatórios para impressão.
         </p>
       </div>
     </div>

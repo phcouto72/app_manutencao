@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { podeGerenciarManutencoes } from "@/lib/authz";
 import AtualizarManutencaoForm from "./AtualizarManutencaoForm";
+import UsoPecasForm from "./UsoPecasForm";
 
 export const dynamic = "force-dynamic";
 
@@ -20,16 +21,27 @@ export default async function DetalheManutencaoPage({ params }: { params: { id: 
 
   const manutencao = await prisma.manutencao.findUnique({
     where: { id: params.id },
-    include: { equipamento: true, local: true, responsavel: true },
+    include: {
+      equipamento: true,
+      local: true,
+      responsavel: true,
+      itensPeca: { include: { peca: true } },
+    },
   });
 
   if (!manutencao) notFound();
 
-  const usuarios = await prisma.usuario.findMany({
-    where: { ativo: true },
-    orderBy: { nome: "asc" },
-    select: { id: true, nome: true },
-  });
+  const [usuarios, pecas] = await Promise.all([
+    prisma.usuario.findMany({
+      where: { ativo: true },
+      orderBy: { nome: "asc" },
+      select: { id: true, nome: true },
+    }),
+    prisma.peca.findMany({
+      orderBy: { nome: "asc" },
+      select: { id: true, nome: true, quantidadeAtual: true, unidadeMedida: true },
+    }),
+  ]);
 
   // Histórico: outras manutenções do mesmo equipamento (ou do mesmo local, se for predial).
   const historico = manutencao.equipamentoId
@@ -89,6 +101,29 @@ export default async function DetalheManutencaoPage({ params }: { params: { id: 
               <dd>{manutencao.responsavel?.nome ?? "—"}</dd>
             </div>
           </dl>
+        )}
+      </div>
+
+      <div className="card p-6 mb-8">
+        <h2 className="font-display text-xl font-semibold tracking-wide mb-4">Peças usadas</h2>
+        {manutencao.itensPeca.length > 0 && (
+          <ul className="divide-y divide-base-800 mb-4">
+            {manutencao.itensPeca.map((item) => (
+              <li key={item.id} className="py-2 flex items-center justify-between text-sm">
+                <span>{item.peca.nome}</span>
+                <span className="text-base-400">
+                  {item.quantidade} {item.peca.unidadeMedida}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+        {podeGerenciar ? (
+          <UsoPecasForm manutencaoId={manutencao.id} pecas={pecas} />
+        ) : (
+          manutencao.itensPeca.length === 0 && (
+            <p className="text-base-400 text-sm">Nenhuma peça registrada ainda.</p>
+          )
         )}
       </div>
 

@@ -9,10 +9,12 @@ const itens = [
   { href: "/equipamentos", label: "Equipamentos", codigo: "02" },
   { href: "/manutencoes", label: "Manutenções", codigo: "03" },
   { href: "/locais", label: "Locais", codigo: "04" },
+  { href: "/estoque", label: "Estoque de Peças", codigo: "05" },
+  { href: "/fornecedores", label: "Fornecedores", codigo: "06" },
+  { href: "/compras", label: "Pedidos de Compra", codigo: "07" },
   // Os itens abaixo serão habilitados nas próximas fases do projeto.
-  // { href: "/estoque", label: "Estoque de Peças", codigo: "05" },
-  // { href: "/fornecedores", label: "Fornecedores", codigo: "06" },
-  // { href: "/relatorios", label: "Relatórios", codigo: "07" },
+  // { href: "/agendamentos", label: "Agendamentos", codigo: "08" },
+  // { href: "/relatorios", label: "Relatórios", codigo: "09" },
 ];
 
 export default function Sidebar({ nomeUsuario, papel }: { nomeUsuario: string; papel: string }) {

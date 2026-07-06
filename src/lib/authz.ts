@@ -17,6 +17,18 @@ export function podeGerenciarLocais(papel?: string | null) {
   return papel === "ADMIN" || papel === "GESTOR";
 }
 
+export function podeGerenciarEstoque(papel?: string | null) {
+  return papel === "ADMIN" || papel === "GESTOR";
+}
+
+export function podeGerenciarFornecedores(papel?: string | null) {
+  return papel === "ADMIN" || papel === "GESTOR";
+}
+
+export function podeGerenciarCompras(papel?: string | null) {
+  return papel === "ADMIN" || papel === "GESTOR";
+}
+
 export function podeGerenciarUsuarios(papel?: string | null) {
   return papel === "ADMIN";
 }

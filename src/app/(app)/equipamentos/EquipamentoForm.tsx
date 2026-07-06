@@ -63,7 +63,12 @@ export default function EquipamentoForm({
     const resposta = await fetch(url, {
       method: metodo,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...dados, criticidade: Number(dados.criticidade) }),
+      body: JSON.stringify({
+        ...dados,
+        criticidade: Number(dados.criticidade),
+        localId: dados.localId || null,
+        equipamentoPaiId: dados.equipamentoPaiId || null,
+      }),
     });
 
     setSalvando(false);

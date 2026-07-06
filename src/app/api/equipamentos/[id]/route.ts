@@ -28,9 +28,25 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
   const corpo = await req.json();
 
+  // Campos vazios ("") de relacionamentos opcionais devem virar nulo, senão o banco
+  // tenta associar a um registro com id vazio e a atualização falha.
+  const dadosAtualizacao = {
+    ...corpo,
+    localId: corpo.localId || null,
+    equipamentoPaiId: corpo.equipamentoPaiId || null,
+  };
+  delete dadosAtualizacao.id;
+
+  if (dadosAtualizacao.equipamentoPaiId === params.id) {
+    return NextResponse.json(
+      { erro: "Um equipamento não pode ser pai dele mesmo" },
+      { status: 400 }
+    );
+  }
+
   const equipamento = await prisma.equipamento.update({
     where: { id: params.id },
-    data: corpo,
+    data: dadosAtualizacao,
   });
 
   await prisma.logAuditoria.create({

@@ -41,6 +41,9 @@ export async function POST(req: NextRequest) {
   }
 
   const corpo = await req.json();
+  if (corpo.localId === "") corpo.localId = null;
+  if (corpo.equipamentoPaiId === "") corpo.equipamentoPaiId = null;
+
   const validacao = equipamentoSchema.safeParse(corpo);
   if (!validacao.success) {
     return NextResponse.json({ erro: validacao.error.flatten() }, { status: 400 });

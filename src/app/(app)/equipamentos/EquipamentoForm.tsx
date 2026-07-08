@@ -73,6 +73,7 @@ export default function EquipamentoForm({
         localId: dados.localId || null,
         equipamentoPaiId: dados.equipamentoPaiId || null,
         categoriaId: dados.categoriaId || null,
+        codigoPatrimonio: dados.codigoPatrimonio || null,
       }),
     });
 
@@ -80,7 +81,13 @@ export default function EquipamentoForm({
 
     if (!resposta.ok) {
       const corpo = await resposta.json().catch(() => ({}));
-      setErro(corpo?.erro ? JSON.stringify(corpo.erro) : "Não foi possível salvar. Verifique os dados.");
+      const mensagem =
+        typeof corpo?.erro === "string"
+          ? corpo.erro
+          : corpo?.erro
+            ? "Verifique os campos destacados e tente novamente."
+            : "Não foi possível salvar. Verifique os dados.";
+      setErro(mensagem);
       return;
     }
 

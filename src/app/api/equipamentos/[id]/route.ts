@@ -35,6 +35,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     localId: corpo.localId || null,
     equipamentoPaiId: corpo.equipamentoPaiId || null,
     categoriaId: corpo.categoriaId || null,
+    codigoPatrimonio: corpo.codigoPatrimonio || null,
   };
   delete dadosAtualizacao.id;
 
@@ -45,10 +46,21 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     );
   }
 
-  const equipamento = await prisma.equipamento.update({
-    where: { id: params.id },
-    data: dadosAtualizacao,
-  });
+  let equipamento;
+  try {
+    equipamento = await prisma.equipamento.update({
+      where: { id: params.id },
+      data: dadosAtualizacao,
+    });
+  } catch (erro: any) {
+    if (erro?.code === "P2002") {
+      return NextResponse.json(
+        { erro: "Já existe outro equipamento com esse código de patrimônio." },
+        { status: 400 }
+      );
+    }
+    throw erro;
+  }
 
   await prisma.logAuditoria.create({
     data: {

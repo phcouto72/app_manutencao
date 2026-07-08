@@ -44,13 +44,25 @@ export async function POST(req: NextRequest) {
   if (corpo.localId === "") corpo.localId = null;
   if (corpo.equipamentoPaiId === "") corpo.equipamentoPaiId = null;
   if (corpo.categoriaId === "") corpo.categoriaId = null;
+  if (corpo.codigoPatrimonio === "") corpo.codigoPatrimonio = null;
 
   const validacao = equipamentoSchema.safeParse(corpo);
   if (!validacao.success) {
     return NextResponse.json({ erro: validacao.error.flatten() }, { status: 400 });
   }
 
-  const equipamento = await prisma.equipamento.create({ data: validacao.data });
+  let equipamento;
+  try {
+    equipamento = await prisma.equipamento.create({ data: validacao.data });
+  } catch (erro: any) {
+    if (erro?.code === "P2002") {
+      return NextResponse.json(
+        { erro: "Já existe outro equipamento com esse código de patrimônio." },
+        { status: 400 }
+      );
+    }
+    throw erro;
+  }
 
   await prisma.logAuditoria.create({
     data: {

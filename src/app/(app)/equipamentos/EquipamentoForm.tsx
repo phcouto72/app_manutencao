@@ -68,12 +68,18 @@ export default function EquipamentoForm({
       method: metodo,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        ...dados,
+        nome: dados.nome,
+        codigoPatrimonio: dados.codigoPatrimonio || null,
+        categoria: dados.categoria ?? null,
+        categoriaId: dados.categoriaId || null,
+        fabricante: dados.fabricante ?? null,
+        modelo: dados.modelo ?? null,
+        numeroSerie: dados.numeroSerie ?? null,
+        status: dados.status,
         criticidade: Number(dados.criticidade),
         localId: dados.localId || null,
         equipamentoPaiId: dados.equipamentoPaiId || null,
-        categoriaId: dados.categoriaId || null,
-        codigoPatrimonio: dados.codigoPatrimonio || null,
+        observacoes: dados.observacoes ?? null,
       }),
     });
 

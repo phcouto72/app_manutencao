@@ -61,7 +61,11 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-    throw erro;
+    console.error("Erro ao criar equipamento:", erro);
+    return NextResponse.json(
+      { erro: "Não foi possível salvar. Tente novamente ou avise o administrador." },
+      { status: 500 }
+    );
   }
 
   await prisma.logAuditoria.create({

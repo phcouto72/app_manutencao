@@ -28,16 +28,23 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
   const corpo = await req.json();
 
-  // Campos vazios ("") de relacionamentos opcionais devem virar nulo, senão o banco
-  // tenta associar a um registro com id vazio e a atualização falha.
+  // Monta explicitamente os campos aceitos pela atualização. Isso evita que campos de
+  // relação (equipamentoPai, subEquipamentos, categoriaRef) ou outros que vieram junto
+  // por engano no corpo da requisição quebrem a atualização no Prisma.
   const dadosAtualizacao = {
-    ...corpo,
+    nome: corpo.nome,
+    codigoPatrimonio: corpo.codigoPatrimonio || null,
+    categoria: corpo.categoria ?? undefined,
+    categoriaId: corpo.categoriaId || null,
+    fabricante: corpo.fabricante ?? undefined,
+    modelo: corpo.modelo ?? undefined,
+    numeroSerie: corpo.numeroSerie ?? undefined,
+    status: corpo.status,
+    criticidade: corpo.criticidade !== undefined ? Number(corpo.criticidade) : undefined,
     localId: corpo.localId || null,
     equipamentoPaiId: corpo.equipamentoPaiId || null,
-    categoriaId: corpo.categoriaId || null,
-    codigoPatrimonio: corpo.codigoPatrimonio || null,
+    observacoes: corpo.observacoes ?? undefined,
   };
-  delete dadosAtualizacao.id;
 
   if (dadosAtualizacao.equipamentoPaiId === params.id) {
     return NextResponse.json(
@@ -59,7 +66,11 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         { status: 400 }
       );
     }
-    throw erro;
+    console.error("Erro ao atualizar equipamento:", erro);
+    return NextResponse.json(
+      { erro: "Não foi possível salvar. Tente novamente ou avise o administrador." },
+      { status: 500 }
+    );
   }
 
   await prisma.logAuditoria.create({

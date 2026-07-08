@@ -14,13 +14,15 @@ export default async function EditarEquipamentoPage({ params }: { params: { id: 
   const [equipamento, locais, equipamentosParaHierarquia] = await Promise.all([
     prisma.equipamento.findUnique({
       where: { id: params.id },
-      include: { equipamentoPai: true, subEquipamentos: true },
+      include: { equipamentoPai: true, subEquipamentos: true, categoriaRef: true },
     }),
     prisma.local.findMany({ orderBy: { nome: "asc" } }),
     prisma.equipamento.findMany({ orderBy: { nome: "asc" }, select: { id: true, nome: true } }),
   ]);
 
   if (!equipamento) notFound();
+
+  const categorias = await prisma.categoria.findMany({ orderBy: { nome: "asc" } });
 
   const somenteLeitura = !(papel === "ADMIN" || papel === "GESTOR");
 
@@ -51,7 +53,7 @@ export default async function EditarEquipamentoPage({ params }: { params: { id: 
             </div>
             <div>
               <dt className="label-field">Categoria</dt>
-              <dd>{equipamento.categoria ?? "—"}</dd>
+              <dd>{equipamento.categoriaRef?.nome ?? "—"}</dd>
             </div>
             <div>
               <dt className="label-field">Patrimônio</dt>
@@ -73,6 +75,7 @@ export default async function EditarEquipamentoPage({ params }: { params: { id: 
         ) : (
           <EquipamentoForm
             locais={locais}
+            categorias={categorias}
             equipamento={equipamento as any}
             equipamentosParaHierarquia={equipamentosParaHierarquia}
           />

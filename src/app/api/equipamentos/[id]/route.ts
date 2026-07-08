@@ -10,7 +10,7 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
 
   const equipamento = await prisma.equipamento.findUnique({
     where: { id: params.id },
-    include: { local: true, subEquipamentos: true },
+    include: { local: true, subEquipamentos: true, categoriaRef: true },
   });
 
   if (!equipamento) return NextResponse.json({ erro: "Não encontrado" }, { status: 404 });
@@ -34,6 +34,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     ...corpo,
     localId: corpo.localId || null,
     equipamentoPaiId: corpo.equipamentoPaiId || null,
+    categoriaId: corpo.categoriaId || null,
   };
   delete dadosAtualizacao.id;
 

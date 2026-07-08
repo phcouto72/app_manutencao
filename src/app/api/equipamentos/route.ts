@@ -8,7 +8,7 @@ import { podeGerenciarEquipamentos } from "@/lib/authz";
 const equipamentoSchema = z.object({
   nome: z.string().min(2, "Informe o nome do equipamento"),
   codigoPatrimonio: z.string().optional().nullable(),
-  categoria: z.string().optional().nullable(),
+  categoriaId: z.string().optional().nullable(),
   fabricante: z.string().optional().nullable(),
   modelo: z.string().optional().nullable(),
   numeroSerie: z.string().optional().nullable(),
@@ -43,6 +43,7 @@ export async function POST(req: NextRequest) {
   const corpo = await req.json();
   if (corpo.localId === "") corpo.localId = null;
   if (corpo.equipamentoPaiId === "") corpo.equipamentoPaiId = null;
+  if (corpo.categoriaId === "") corpo.categoriaId = null;
 
   const validacao = equipamentoSchema.safeParse(corpo);
   if (!validacao.success) {

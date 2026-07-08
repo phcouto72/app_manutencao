@@ -9,6 +9,10 @@ export function podeGerenciarEquipamentos(papel?: string | null) {
   return papel === "ADMIN" || papel === "GESTOR";
 }
 
+export function podeGerenciarCategorias(papel?: string | null) {
+  return papel === "ADMIN" || papel === "GESTOR";
+}
+
 export function podeGerenciarManutencoes(papel?: string | null) {
   return papel === "ADMIN" || papel === "GESTOR" || papel === "TECNICO";
 }

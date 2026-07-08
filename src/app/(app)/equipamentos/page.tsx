@@ -20,7 +20,7 @@ export default async function EquipamentosPage() {
   const podeGerenciar = podeGerenciarEquipamentos(papel);
 
   const equipamentos = await prisma.equipamento.findMany({
-    include: { local: true, equipamentoPai: true },
+    include: { local: true, equipamentoPai: true, categoriaRef: true },
     orderBy: { criadoEm: "desc" },
   });
 
@@ -74,7 +74,7 @@ export default async function EquipamentosPage() {
                       </span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-base-400">{eq.categoria ?? "—"}</td>
+                  <td className="px-4 py-3 text-base-400">{eq.categoriaRef?.nome ?? "—"}</td>
                   <td className="px-4 py-3 text-base-400">{eq.local?.nome ?? "—"}</td>
                   <td className={`px-4 py-3 font-medium ${statusLabel[eq.status].cor}`}>
                     {statusLabel[eq.status].texto}

@@ -1,56 +1,38 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { podeGerenciarUsuarios } from "@/lib/authz";
-import { getEmpresaConfig } from "@/lib/empresa";
-import EmpresaForm from "./EmpresaForm";
-import LogoUpload from "./LogoUpload";
 
-export const dynamic = "force-dynamic";
-
-export default async function ConfiguracoesPage() {
+export default async function ConfiguracoesHubPage() {
   const session = await getServerSession(authOptions);
   const papel = (session?.user as any)?.papel;
   if (!podeGerenciarUsuarios(papel)) redirect("/dashboard");
 
-  const config = await getEmpresaConfig();
+  const itens = [
+    { href: "/configuracoes/empresa", titulo: "Empresa", desc: "Logo e dados usados nos relatórios" },
+    { href: "/configuracoes/locais", titulo: "Locais", desc: "Estrutura predial da empresa" },
+    { href: "/configuracoes/categorias", titulo: "Categorias de Equipamento", desc: "Tipos usados no cadastro de equipamentos" },
+    { href: "/configuracoes/usuarios", titulo: "Usuários", desc: "Contas de acesso e funções" },
+    { href: "/configuracoes/auditoria", titulo: "Auditoria", desc: "Histórico de ações no sistema" },
+  ];
 
   return (
     <div>
       <p className="font-mono text-signal text-xs tracking-widest mb-1">ADMINISTRAÇÃO</p>
-      <h1 className="font-display text-3xl font-semibold tracking-wide mb-8">
-        Configurações da empresa
-      </h1>
+      <h1 className="font-display text-3xl font-semibold tracking-wide mb-8">Configurações</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="card p-6">
-          <h2 className="font-display text-lg font-semibold tracking-wide mb-1">Logo do sistema</h2>
-          <p className="text-xs text-base-400 mb-4">
-            Aparece no menu lateral e na tela de login. Ideal: formato quadrado.
-          </p>
-          <LogoUpload logoAtual={config.logoUrl} tipo="tela" />
-        </div>
-
-        <div className="card p-6">
-          <h2 className="font-display text-lg font-semibold tracking-wide mb-1">
-            Logo para relatórios impressos
-          </h2>
-          <p className="text-xs text-base-400 mb-4">
-            Aparece no cabeçalho dos relatórios e etiquetas. Ideal: formato horizontal (papel
-            timbrado). Se não enviar, usamos o logo do sistema.
-          </p>
-          <LogoUpload logoAtual={config.logoImpressaoUrl} tipo="impressao" />
-        </div>
-
-        <div className="card p-6 md:col-span-2">
-          <h2 className="font-display text-lg font-semibold tracking-wide mb-4">
-            Dados da empresa
-          </h2>
-          <p className="text-xs text-base-400 mb-4">
-            Esses dados aparecem no cabeçalho dos relatórios impressos.
-          </p>
-          <EmpresaForm config={config} />
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {itens.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className="card p-6 hover:border-signal transition-colors block"
+          >
+            <h2 className="font-display text-xl font-semibold tracking-wide mb-1">{item.titulo}</h2>
+            <p className="text-base-400 text-sm">{item.desc}</p>
+          </Link>
+        ))}
       </div>
     </div>
   );

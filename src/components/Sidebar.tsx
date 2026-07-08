@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
@@ -8,7 +9,6 @@ const itens = [
   { href: "/dashboard", label: "Painel", codigo: "01" },
   { href: "/equipamentos", label: "Equipamentos", codigo: "02" },
   { href: "/manutencoes", label: "Manutenções", codigo: "03" },
-  { href: "/locais", label: "Locais", codigo: "04" },
   { href: "/estoque", label: "Estoque de Peças", codigo: "05" },
   { href: "/fornecedores", label: "Fornecedores", codigo: "06" },
   { href: "/compras", label: "Pedidos de Compra", codigo: "07" },
@@ -16,9 +16,13 @@ const itens = [
   { href: "/relatorios", label: "Relatórios", codigo: "09" },
 ];
 
-const itemUsuarios = { href: "/usuarios", label: "Usuários", codigo: "10" };
-const itemAuditoria = { href: "/auditoria", label: "Auditoria", codigo: "11" };
-const itemConfiguracoes = { href: "/configuracoes", label: "Configurações", codigo: "12" };
+const submenuConfiguracoes = [
+  { href: "/configuracoes/empresa", label: "Empresa" },
+  { href: "/configuracoes/locais", label: "Locais" },
+  { href: "/configuracoes/categorias", label: "Categorias" },
+  { href: "/configuracoes/usuarios", label: "Usuários" },
+  { href: "/configuracoes/auditoria", label: "Auditoria" },
+];
 
 export default function Sidebar({
   nomeUsuario,
@@ -36,8 +40,9 @@ export default function Sidebar({
   onFechar: () => void;
 }) {
   const pathname = usePathname();
-  const listaItens =
-    papel === "ADMIN" ? [...itens, itemUsuarios, itemAuditoria, itemConfiguracoes] : itens;
+  const ehAdmin = papel === "ADMIN";
+  const configAtiva = pathname?.startsWith("/configuracoes");
+  const [configAberta, setConfigAberta] = useState(!!configAtiva);
 
   return (
     <aside
@@ -70,7 +75,7 @@ export default function Sidebar({
       </div>
 
       <nav className="flex-1 py-4 overflow-y-auto">
-        {listaItens.map((item) => {
+        {itens.map((item) => {
           const ativo = pathname?.startsWith(item.href);
           return (
             <Link
@@ -88,6 +93,53 @@ export default function Sidebar({
             </Link>
           );
         })}
+
+        {ehAdmin && (
+          <div>
+            <button
+              onClick={() => setConfigAberta((atual) => !atual)}
+              className={`w-full flex items-center gap-3 px-5 py-2.5 text-sm border-l-2 transition-colors ${
+                configAtiva
+                  ? "border-signal text-base-100 bg-base-800"
+                  : "border-transparent text-base-400 hover:text-base-100 hover:bg-base-800/60"
+              }`}
+            >
+              <span className="font-mono text-[10px] text-base-500">10</span>
+              Configurações
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                className={`ml-auto transition-transform ${configAberta ? "rotate-180" : ""}`}
+              >
+                <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+
+            {configAberta && (
+              <div className="pb-1">
+                {submenuConfiguracoes.map((sub) => {
+                  const subAtivo = pathname === sub.href || pathname?.startsWith(sub.href + "/");
+                  return (
+                    <Link
+                      key={sub.href}
+                      href={sub.href}
+                      onClick={onFechar}
+                      className={`flex items-center gap-2 pl-12 pr-5 py-2 text-sm transition-colors ${
+                        subAtivo ? "text-signal" : "text-base-400 hover:text-base-100 hover:bg-base-800/60"
+                      }`}
+                    >
+                      {sub.label}
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
       </nav>
 
       <div className="px-5 py-4 border-t border-base-700">

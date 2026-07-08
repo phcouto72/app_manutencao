@@ -66,11 +66,22 @@ enum StatusEquipamento {
   INATIVO
 }
 
+model Categoria {
+  id        String   @id @default(cuid())
+  nome      String   @unique
+  descricao String?
+  criadoEm  DateTime @default(now())
+
+  equipamentos Equipamento[]
+}
+
 model Equipamento {
   id               String            @id @default(cuid())
   codigoPatrimonio String?           @unique // código interno / etiqueta / QR code
   nome             String
-  categoria        String?           // Ex: "Motor", "Compressor", "Ar condicionado"
+  categoria        String?           // campo antigo (texto livre) — mantido só para não perder histórico
+  categoriaId      String?
+  categoriaRef     Categoria?        @relation(fields: [categoriaId], references: [id])
   fabricante       String?
   modelo           String?
   numeroSerie      String?

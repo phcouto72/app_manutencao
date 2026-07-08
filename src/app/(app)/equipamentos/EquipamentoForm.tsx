@@ -4,12 +4,14 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 type Local = { id: string; nome: string };
+type Categoria = { id: string; nome: string };
 
 type EquipamentoDados = {
   id?: string;
   nome: string;
   codigoPatrimonio?: string | null;
   categoria?: string | null;
+  categoriaId?: string | null;
   fabricante?: string | null;
   modelo?: string | null;
   numeroSerie?: string | null;
@@ -22,10 +24,12 @@ type EquipamentoDados = {
 
 export default function EquipamentoForm({
   locais,
+  categorias,
   equipamento,
   equipamentosParaHierarquia,
 }: {
   locais: Local[];
+  categorias: Categoria[];
   equipamento?: EquipamentoDados;
   equipamentosParaHierarquia: { id: string; nome: string }[];
 }) {
@@ -34,7 +38,7 @@ export default function EquipamentoForm({
     equipamento ?? {
       nome: "",
       codigoPatrimonio: "",
-      categoria: "",
+      categoriaId: "",
       fabricante: "",
       modelo: "",
       numeroSerie: "",
@@ -68,6 +72,7 @@ export default function EquipamentoForm({
         criticidade: Number(dados.criticidade),
         localId: dados.localId || null,
         equipamentoPaiId: dados.equipamentoPaiId || null,
+        categoriaId: dados.categoriaId || null,
       }),
     });
 
@@ -109,12 +114,28 @@ export default function EquipamentoForm({
 
         <div>
           <label className="label-field">Categoria</label>
-          <input
+          <select
             className="input-field"
-            value={dados.categoria ?? ""}
-            onChange={(e) => atualizar("categoria", e.target.value)}
-            placeholder="Ex: Compressor, Motor, Ar condicionado"
-          />
+            value={dados.categoriaId ?? ""}
+            onChange={(e) => atualizar("categoriaId", e.target.value)}
+          >
+            <option value="">Selecione...</option>
+            {categorias.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.nome}
+              </option>
+            ))}
+          </select>
+          {categorias.length === 0 && (
+            <p className="text-xs text-base-400 mt-1">
+              Nenhuma categoria cadastrada ainda — crie em Configurações → Categorias.
+            </p>
+          )}
+          {!dados.categoriaId && dados.categoria && (
+            <p className="text-xs text-signal mt-1">
+              Categoria antiga (texto livre): "{dados.categoria}" — escolha a correspondente acima.
+            </p>
+          )}
         </div>
 
         <div>

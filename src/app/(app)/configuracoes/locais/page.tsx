@@ -3,20 +3,33 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { podeGerenciarLocais } from "@/lib/authz";
+import { parsePaginacao } from "@/lib/paginacao";
+import Paginacao from "@/components/Paginacao";
 import NovoLocalForm from "./NovoLocalForm";
 import ExcluirLocalBotao from "./ExcluirLocalBotao";
 
 export const dynamic = "force-dynamic";
 
-export default async function LocaisPage() {
+export default async function LocaisPage({
+  searchParams,
+}: {
+  searchParams: { pagina?: string; porPagina?: string };
+}) {
   const session = await getServerSession(authOptions);
   const papel = (session?.user as any)?.papel;
   const podeGerenciar = podeGerenciarLocais(papel);
 
-  const locais = await prisma.local.findMany({
-    include: { _count: { select: { equipamentos: true, manutencoes: true } } },
-    orderBy: { nome: "asc" },
-  });
+  const { pagina, porPagina, skip, take } = parsePaginacao(searchParams);
+
+  const [locais, total] = await Promise.all([
+    prisma.local.findMany({
+      include: { _count: { select: { equipamentos: true, manutencoes: true } } },
+      orderBy: { nome: "asc" },
+      skip,
+      take,
+    }),
+    prisma.local.count(),
+  ]);
 
   return (
     <div>
@@ -70,6 +83,7 @@ export default async function LocaisPage() {
             </tbody>
           </table>
         </div>
+        <Paginacao total={total} pagina={pagina} porPagina={porPagina} />
       </div>
     </div>
   );

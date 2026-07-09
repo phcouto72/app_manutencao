@@ -3,15 +3,17 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { podeGerenciarManutencoes } from "@/lib/authz";
+import { parsePaginacao } from "@/lib/paginacao";
+import Paginacao from "@/components/Paginacao";
 
 export const dynamic = "force-dynamic";
 
-const statusInfo: Record<string, { texto: string; cor: string }> = {
-  ABERTA: { texto: "Aberta", cor: "text-info" },
-  EM_ANDAMENTO: { texto: "Em andamento", cor: "text-warn" },
-  AGUARDANDO_PECA: { texto: "Aguardando peça", cor: "text-signal" },
-  CONCLUIDA: { texto: "Concluída", cor: "text-ok" },
-  CANCELADA: { texto: "Cancelada", cor: "text-base-500" },
+const statusInfo: Record<string, { texto: string; cor: string; linha: string }> = {
+  ABERTA: { texto: "Aberta", cor: "text-info", linha: "bg-info/10 hover:bg-info/20" },
+  EM_ANDAMENTO: { texto: "Em andamento", cor: "text-warn", linha: "bg-warn/10 hover:bg-warn/20" },
+  AGUARDANDO_PECA: { texto: "Aguardando peça", cor: "text-signal", linha: "bg-signal/10 hover:bg-signal/20" },
+  CONCLUIDA: { texto: "Concluída", cor: "text-ok", linha: "bg-ok/5 hover:bg-ok/10" },
+  CANCELADA: { texto: "Cancelada", cor: "text-base-500", linha: "bg-base-500/10 hover:bg-base-500/20" },
 };
 
 const tipoTexto: Record<string, string> = {
@@ -23,20 +25,29 @@ const tipoTexto: Record<string, string> = {
 export default async function ManutencoesPage({
   searchParams,
 }: {
-  searchParams: { status?: string; tipo?: string };
+  searchParams: { status?: string; tipo?: string; pagina?: string; porPagina?: string };
 }) {
   const session = await getServerSession(authOptions);
   const papel = (session?.user as any)?.papel;
   const podeGerenciar = podeGerenciarManutencoes(papel);
 
-  const manutencoes = await prisma.manutencao.findMany({
-    where: {
-      status: (searchParams.status as any) || undefined,
-      tipo: (searchParams.tipo as any) || undefined,
-    },
-    include: { equipamento: true, local: true, responsavel: true },
-    orderBy: { dataAbertura: "desc" },
-  });
+  const { pagina, porPagina, skip, take } = parsePaginacao(searchParams);
+
+  const where = {
+    status: (searchParams.status as any) || undefined,
+    tipo: (searchParams.tipo as any) || undefined,
+  };
+
+  const [manutencoes, total] = await Promise.all([
+    prisma.manutencao.findMany({
+      where,
+      include: { equipamento: true, local: true, responsavel: true },
+      orderBy: { dataAbertura: "desc" },
+      skip,
+      take,
+    }),
+    prisma.manutencao.count({ where }),
+  ]);
 
   function linkFiltro(params: Record<string, string | undefined>) {
     const novo = new URLSearchParams();
@@ -84,52 +95,53 @@ export default async function ManutencoesPage({
         ))}
       </div>
 
-      {manutencoes.length === 0 ? (
+      {total === 0 ? (
         <div className="card p-10 text-center">
           <p className="text-base-400">Nenhuma ordem de serviço encontrada com esse filtro.</p>
         </div>
       ) : (
         <div className="card overflow-hidden">
           <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-base-700 text-left text-base-400 uppercase text-xs tracking-wide">
-                <th className="px-4 py-3 font-medium">OS</th>
-                <th className="px-4 py-3 font-medium">Título</th>
-                <th className="px-4 py-3 font-medium">Tipo</th>
-                <th className="px-4 py-3 font-medium">Equipamento / Local</th>
-                <th className="px-4 py-3 font-medium">Responsável</th>
-                <th className="px-4 py-3 font-medium">Status</th>
-                <th className="px-4 py-3 font-medium">Aberta em</th>
-              </tr>
-            </thead>
-            <tbody>
-              {manutencoes.map((m) => (
-                <tr key={m.id} className="border-b border-base-800 hover:bg-base-800/50">
-                  <td className="px-4 py-3 font-mono text-xs text-base-400">
-                    #{String(m.numeroOS).padStart(4, "0")}
-                  </td>
-                  <td className="px-4 py-3">
-                    <Link href={`/manutencoes/${m.id}`} className="hover:text-signal">
-                      {m.titulo}
-                    </Link>
-                  </td>
-                  <td className="px-4 py-3 text-base-400">{tipoTexto[m.tipo]}</td>
-                  <td className="px-4 py-3 text-base-400">
-                    {m.equipamento?.nome ?? m.local?.nome ?? "—"}
-                  </td>
-                  <td className="px-4 py-3 text-base-400">{m.responsavel?.nome ?? "—"}</td>
-                  <td className={`px-4 py-3 font-medium ${statusInfo[m.status].cor}`}>
-                    {statusInfo[m.status].texto}
-                  </td>
-                  <td className="px-4 py-3 text-base-400">
-                    {new Intl.DateTimeFormat("pt-BR").format(new Date(m.dataAbertura))}
-                  </td>
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-base-700 text-left text-base-400 uppercase text-xs tracking-wide">
+                  <th className="px-4 py-3 font-medium">OS</th>
+                  <th className="px-4 py-3 font-medium">Título</th>
+                  <th className="px-4 py-3 font-medium">Tipo</th>
+                  <th className="px-4 py-3 font-medium">Equipamento / Local</th>
+                  <th className="px-4 py-3 font-medium">Responsável</th>
+                  <th className="px-4 py-3 font-medium">Status</th>
+                  <th className="px-4 py-3 font-medium">Aberta em</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {manutencoes.map((m) => (
+                  <tr key={m.id} className={`border-b border-base-800 transition-colors ${statusInfo[m.status].linha}`}>
+                    <td className="px-4 py-3 font-mono text-xs text-base-400">
+                      #{String(m.numeroOS).padStart(4, "0")}
+                    </td>
+                    <td className="px-4 py-3">
+                      <Link href={`/manutencoes/${m.id}`} className="hover:text-signal">
+                        {m.titulo}
+                      </Link>
+                    </td>
+                    <td className="px-4 py-3 text-base-400">{tipoTexto[m.tipo]}</td>
+                    <td className="px-4 py-3 text-base-400">
+                      {m.equipamento?.nome ?? m.local?.nome ?? "—"}
+                    </td>
+                    <td className="px-4 py-3 text-base-400">{m.responsavel?.nome ?? "—"}</td>
+                    <td className={`px-4 py-3 font-medium ${statusInfo[m.status].cor}`}>
+                      {statusInfo[m.status].texto}
+                    </td>
+                    <td className="px-4 py-3 text-base-400">
+                      {new Intl.DateTimeFormat("pt-BR").format(new Date(m.dataAbertura))}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
+          <Paginacao total={total} pagina={pagina} porPagina={porPagina} />
         </div>
       )}
     </div>

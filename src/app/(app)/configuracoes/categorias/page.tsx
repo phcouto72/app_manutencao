@@ -3,20 +3,33 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { podeGerenciarCategorias } from "@/lib/authz";
+import { parsePaginacao } from "@/lib/paginacao";
+import Paginacao from "@/components/Paginacao";
 import NovaCategoriaForm from "./NovaCategoriaForm";
 import ExcluirCategoriaBotao from "./ExcluirCategoriaBotao";
 
 export const dynamic = "force-dynamic";
 
-export default async function CategoriasPage() {
+export default async function CategoriasPage({
+  searchParams,
+}: {
+  searchParams: { pagina?: string; porPagina?: string };
+}) {
   const session = await getServerSession(authOptions);
   const papel = (session?.user as any)?.papel;
   const podeGerenciar = podeGerenciarCategorias(papel);
 
-  const categorias = await prisma.categoria.findMany({
-    include: { _count: { select: { equipamentos: true } } },
-    orderBy: { nome: "asc" },
-  });
+  const { pagina, porPagina, skip, take } = parsePaginacao(searchParams);
+
+  const [categorias, total] = await Promise.all([
+    prisma.categoria.findMany({
+      include: { _count: { select: { equipamentos: true } } },
+      orderBy: { nome: "asc" },
+      skip,
+      take,
+    }),
+    prisma.categoria.count(),
+  ]);
 
   return (
     <div>
@@ -28,7 +41,7 @@ export default async function CategoriasPage() {
         {podeGerenciar && <NovaCategoriaForm />}
       </div>
 
-      {categorias.length === 0 ? (
+      {total === 0 ? (
         <div className="card p-10 text-center">
           <p className="text-base-400">Nenhuma categoria cadastrada ainda.</p>
         </div>
@@ -73,6 +86,7 @@ export default async function CategoriasPage() {
               </tbody>
             </table>
           </div>
+          <Paginacao total={total} pagina={pagina} porPagina={porPagina} />
         </div>
       )}
     </div>
